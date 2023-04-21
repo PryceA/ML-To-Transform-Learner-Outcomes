@@ -37,12 +37,12 @@ function createGraphCard(skillLetter, skillName, cardsContainer) {
 
 async function fetchAndUpdateStudentData(studentId, skillLetter, graphId) {
     const studentData = await $.get(`${baseUrl}/student/${studentId}/skill/${skillLetter}`);
-    updateGraph(graphId, studentData, 'Student');
+    updateGraph(graphId, studentData, 'Student', 'blue', 4);
 }
 
 async function fetchAndUpdateAverageData(skillLetter, graphId) {
     const averageData = await $.get(`${baseUrl}/average_skill/${skillLetter}`);
-    updateGraph(graphId, averageData, 'Average');
+    updateGraph(graphId, averageData, 'Average', 'orange', 2);
 }
 
 function generateAverageData(regressionData, minAge, maxAge) {
@@ -56,12 +56,19 @@ function generateAverageData(regressionData, minAge, maxAge) {
     }));
 }
 
-function updateGraph(graphId, scores, traceName) {
+function updateGraph(graphId, scores, traceName, color, width) {
+    const xValues = scores.map(point => point.student_age || point.age);
+    const yValues = scores.map(point => point.skill_value);
+
     const trace = {
-        x: scores.map(scoreObj => scoreObj.student_age),
-        y: scores.map(scoreObj => scoreObj.skill_value),
+        x: xValues,
+        y: yValues,
         mode: 'lines',
-        name: traceName
+        name: traceName,
+        line: {
+            color: color,
+            width: width
+        }
     };
 
     const layout = {
@@ -71,7 +78,7 @@ function updateGraph(graphId, scores, traceName) {
     };
 
     if (typeof Plotly !== 'undefined') {
-        Plotly.addTraces(graphId, trace);
+    Plotly.addTraces(graphId, trace);
         Plotly.update(graphId, {}, layout);
     } else {
         console.error("Plotly is not loaded.");
