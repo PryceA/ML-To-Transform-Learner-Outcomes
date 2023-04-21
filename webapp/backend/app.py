@@ -4,6 +4,7 @@ import zipfile
 import logging
 import re
 import numpy as np
+from scipy.stats import linregress
 from datetime import datetime
 
 app = Flask(__name__)
@@ -84,9 +85,6 @@ def get_student_skill(student_id, skill_id):
 # Initialize cache dictionary
 skill_average_cache = {}
 
-import numpy as np
-from scipy.stats import linregress
-
 @app.route('/average_skill/<string:skill_id>', methods=['GET'])
 def get_average_skill(skill_id):
     # Check if the skill_id is already cached
@@ -108,17 +106,20 @@ def get_average_skill(skill_id):
     if not all_skill_values:
         return jsonify({"error": "Skill not found"}), 404
 
-    # Check for the number of unique values in the input arrays
-    if len(set(all_student_ages)) <= 1 or len(set(all_skill_values)) <= 1:
-        return jsonify({"error": "Not enough unique data points to calculate a trend line"}), 400
+    # Calculate the polynomial fit (e.g., 3rd-degree polynomial)
+    poly_fit = np.polyfit(all_student_ages, all_skill_values, 3)
+    poly_func = np.poly1d(poly_fit)
 
-    # Calculate the best fit line's slope, intercept, and other values
-    slope, intercept, r_value, p_value, std_err = linregress(all_student_ages, all_skill_values)
+    # Generate points on the curve between the minimum and maximum ages
+    min_age, max_age = min(all_student_ages), max(all_student_ages)
+    curve_ages = np.linspace(min_age, max_age, num=100)
+    curve_skill_values = poly_func(curve_ages)
 
-    # Store the calculated slope, intercept, and other values in cache
-    skill_average_cache[skill_id] = {"slope": slope, "intercept": intercept, "r_value": r_value, "p_value": p_value, "std_err": std_err}
+    # Store the calculated curve points in cache
+    skill_average_cache[skill_id] = [{"age": age, "skill_value": skill_value} for age, skill_value in zip(curve_ages, curve_skill_values)]
 
     return jsonify(skill_average_cache[skill_id])
+
 
 
 @app.route('/all_skill_values/<string:skill_id>', methods=['GET'])
