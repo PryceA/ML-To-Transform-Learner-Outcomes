@@ -37,7 +37,7 @@ function createGraphCard(skillLetter, skillName, cardsContainer) {
 
 async function fetchAndUpdateStudentData(studentId, skillLetter, graphId) {
     const studentData = await $.get(`${baseUrl}/student/${studentId}/skill/${skillLetter}`);
-    updateGraph(graphId, studentData, 'Student', 'blue', 4);
+    updateGraph(graphId, studentData, 'Student', 'blue', 3);
 }
 
 async function fetchAndUpdateAverageData(skillLetter, graphId) {
