@@ -41,10 +41,7 @@ async function fetchAndUpdateStudentData(studentId, skillLetter, graphId) {
 }
 
 async function fetchAndUpdateAverageData(skillLetter, graphId) {
-    const regressionData = await $.get(`${baseUrl}/average_skill/${skillLetter}`);
-    const minAge = 0; // you can set this to the minimum age you expect in the data
-    const maxAge = 20; // you can set this to the maximum age you expect in the data
-    const averageData = generateAverageData(regressionData, minAge, maxAge);
+    const averageData = await $.get(`${baseUrl}/average_skill/${skillLetter}`);
     updateGraph(graphId, averageData, 'Average');
 }
 
