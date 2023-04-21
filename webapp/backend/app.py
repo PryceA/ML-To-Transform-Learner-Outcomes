@@ -107,7 +107,7 @@ def get_average_skill(skill_id):
         return jsonify({"error": "Skill not found"}), 404
 
     # Calculate the polynomial fit (e.g., 3rd-degree polynomial)
-    poly_fit = np.polyfit(all_student_ages, all_skill_values, 3)
+    poly_fit = np.polyfit(all_student_ages, all_skill_values, 1)
     poly_func = np.poly1d(poly_fit)
 
     # Generate points on the curve between the minimum and maximum ages
